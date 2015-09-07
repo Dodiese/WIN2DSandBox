@@ -1,0 +1,17 @@
+﻿<Page
+    x:Class="WIN2DSandBox.DevicesCapView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WIN2DSandBox"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel HorizontalAlignment="Left" Width="372" Margin="64,90,0,450" d:LayoutOverrides="TopPosition, BottomPosition">
+            <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="TextBlock"/>
+            <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Text="TextBlock"/>
+        </StackPanel>
+
+    </Grid>
+</Page>

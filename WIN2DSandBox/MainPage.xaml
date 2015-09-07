@@ -1,0 +1,62 @@
+﻿<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WIN2DSandBox"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Xaml="using:Microsoft.Graphics.Canvas.UI.Xaml"
+    xmlns:InputCaps="using:WIN2DSandBox.InputCaps"
+    x:Class="WIN2DSandBox.MainPage"
+    mc:Ignorable="d" Background="#00000000">
+
+    <Grid Background="White">
+        <Pivot Title="Win2DSandBox">
+            <PivotItem Header="Drawing">
+                <Grid>
+                    <Xaml:CanvasControl Draw="OnCanvasDraw"/>
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Devices">
+                <PivotItem.DataContext>
+                    <InputCaps:DeviceCapsVM/>
+                </PivotItem.DataContext>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <VariableSizedWrapGrid d:LayoutOverrides="Width, LeftPosition, RightPosition, TopPosition, BottomPosition" Orientation="Horizontal">
+                        <Border BorderThickness="1" VerticalAlignment="Top" Height="422" Canvas.ZIndex="1" Margin="0,0,35,0" Width="241" Background="#FFE4E4E4">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,-1564" Width="172">
+                                <TextBlock x:Name="TitleMouse" TextWrapping="Wrap" Text="Mouse" Margin="0,0,0,30" FontSize="26.667"/>
+                                <TextBlock x:Name="LabelMousePresent" TextWrapping="Wrap" Text="Is Present" Margin="0" FontSize="20"/>
+                                <ToggleSwitch x:Name="checkBoxMousePresent" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False" Height="70" IsOn="{Binding MouseCapabilities.IsPresent}"/>
+                                <TextBlock x:Name="LabelMouseH" TextWrapping="Wrap" Text="HorizontalWheel" Margin="0" FontSize="20"/>
+                                <ToggleSwitch x:Name="checkBoxMouseH" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False" Height="70" IsOn="{Binding MouseCapabilities.HorizontalWheelPresent}"/>
+                                <TextBlock x:Name="LabelMouseV" TextWrapping="Wrap" Text="VerticalWheel" FontSize="20" />
+                                <ToggleSwitch x:Name="checkBoxMouseV" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsEnabled="False" Height="70" IsOn="{Binding MouseCapabilities.VerticalWheelPresent}"/>
+                                <TextBlock x:Name="LabelNumButtons" TextWrapping="Wrap" Text="Number of Buttons" FontSize="20"/>
+                                <TextBlock x:Name="NumButtons" TextWrapping="Wrap" Text="{Binding MouseCapabilities.NumberOfButtons}" FontSize="16"/>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderThickness="1" VerticalAlignment="Top" Height="422" Canvas.ZIndex="1" Margin="0,0,35,0" Width="241" Background="#FFE4E4E4">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                                <TextBlock x:Name="TitleKeyboard" TextWrapping="Wrap" Text="Keyboard" Margin="0,0,0,30" FontSize="26.667"/>
+                                <TextBlock x:Name="LabelKeybPresent" TextWrapping="Wrap" Text="Is Present" Margin="0" FontSize="20"/>
+                                <ToggleSwitch x:Name="checkBoxKeybPresent" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False" Height="70" IsOn="{Binding KeyboardCapabilities.IsPresent}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderThickness="1" VerticalAlignment="Top" Height="422" Canvas.ZIndex="1" Margin="0,0,35,0" Width="241" Background="#FFE4E4E4">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                                <TextBlock x:Name="TitleTouch" TextWrapping="Wrap" Text="TouchScreen" Margin="0,0,0,30" FontSize="26.667"/>
+                                <TextBlock x:Name="LabelTouchPresent" TextWrapping="Wrap" Margin="0" FontSize="20" Text="Is Present"/>
+                                <ToggleSwitch x:Name="checkBoxTouchPresent" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False" Height="70" IsOn="{Binding TouchCapabilities.IsPresent}"/>
+                                <TextBlock x:Name="LabelNumContacts" TextWrapping="Wrap" Text="Number of Contact" FontSize="20"/>
+                                <TextBlock x:Name="NumContacts" TextWrapping="Wrap" Text="{Binding TouchCapabilities.NumberOfcontacts}" FontSize="16"/>
+                            </StackPanel>
+                        </Border>
+                    </VariableSizedWrapGrid>
+                </Grid>
+            </PivotItem>
+        </Pivot>
+    </Grid>
+</Page>
