@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Xaml="using:Microsoft.Graphics.Canvas.UI.Xaml"
     xmlns:InputCaps="using:WIN2DSandBox.InputCaps"
+    xmlns:drawTools="using:WIN2DSandBox.DrawTools"
     x:Class="WIN2DSandBox.MainPage"
     mc:Ignorable="d" Background="#00000000">
 
@@ -13,7 +14,7 @@
         <Pivot Title="Win2DSandBox">
             <PivotItem Header="Drawing">
                 <Grid>
-                    <Xaml:CanvasControl Draw="OnCanvasDraw"/>
+                    <drawTools:DrawingBoard/>
                 </Grid>
             </PivotItem>
             <PivotItem Header="Devices">

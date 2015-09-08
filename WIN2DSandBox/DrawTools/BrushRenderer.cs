@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection.Metadata;
+using Windows.UI;
 using Windows.UI.Input;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Geometry;
@@ -41,10 +43,14 @@ namespace WIN2DSandBox.DrawTools
         {
             foreach (var stroke in Strokes)
             {
-                var prev = stroke.Points[0];
-                foreach (var point in stroke.Points)
+                if (stroke.Points.Count>1)
                 {
-
+                    for(var i= 1; i <stroke.Points.Count; i++)
+                    {
+                        var point = stroke.Points[i];
+                        var prev = stroke.Points[i - 1];
+                        ds.FillEllipse(point, stroke.BrushRadius, stroke.BrushRadius, Colors.DarkRed);
+                    } 
                 }
             }
         }
@@ -54,21 +60,18 @@ namespace WIN2DSandBox.DrawTools
     {
         public List<Vector2> Points { get; } = new List<Vector2>();
 
-        public float BrushRadius1
+        public float BrushRadius
         {
             get
             {
-                return BrushRadius;
+                return _brushRadius;
             }
 
             set
             {
-                BrushRadius = value;
+                _brushRadius = value;
             }
         }
-
-        private float BrushRadius = 10;
-
-
+        private float _brushRadius= 10;
     }
 }
