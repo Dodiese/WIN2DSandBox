@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
@@ -20,12 +12,14 @@ namespace WIN2DSandBox.DrawTools
 {
     public sealed partial class DrawingBoard : UserControl
     {
-        private BrushRenderer renderer = new BrushRenderer();
+        private CanvasRenderTarget _layer;
+        private readonly BrushRenderer renderer = new BrushRenderer();
+
         public DrawingBoard()
         {
-            this.InitializeComponent();
-            this.PointerPressed += DrawingBoard_PointerPressed;
-            this.PointerMoved += DrawingBoard_PointerMoved;
+            InitializeComponent();
+            PointerPressed += DrawingBoard_PointerPressed;
+            PointerMoved += DrawingBoard_PointerMoved;
         }
 
         private void DrawingBoard_PointerMoved(object sender, PointerRoutedEventArgs e)
@@ -48,10 +42,32 @@ namespace WIN2DSandBox.DrawTools
 
         private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
         {
-            lock (renderer)
+            _layer = _layer ??
+                     new CanvasRenderTarget(DrawingControl, (float) DrawingControl.ActualWidth,
+                         (float) DrawingControl.ActualHeight);
+            using (var ds = _layer.CreateDrawingSession())
             {
-                renderer.Render(args.DrawingSession);
-            }      
+                renderer.Render(ds);
+            }
+
+            args.DrawingSession.DrawImage(_layer);
+        }
+
+        private void DrawingBoard_OnLoaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+
+        private async void button_Click(object sender, RoutedEventArgs e)
+        {
+            var fileName = "DrawingBoard" + DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss") + ".png";
+
+            var storageFolder = KnownFolders.PicturesLibrary;
+            var sampleFile = await storageFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+            using (var stream = await sampleFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                await _layer.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+            }
         }
     }
 }

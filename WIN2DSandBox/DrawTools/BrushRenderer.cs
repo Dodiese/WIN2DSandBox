@@ -33,7 +33,7 @@ namespace WIN2DSandBox.DrawTools
             {
                 if (point.IsInContact)
                 {
-                    CurrentStroke.Points.Add(new Vector2((float)point.Position.X, (float)point.Position.Y));
+                    CurrentStroke?.Points.Add(new Vector2((float)point.Position.X, (float)point.Position.Y));
                 }
 
             }
