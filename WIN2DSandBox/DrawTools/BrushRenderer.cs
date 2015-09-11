@@ -1,31 +1,46 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Numerics;
 using System.Reflection.Metadata;
+using Windows.ApplicationModel.Background;
+using Windows.Foundation;
+using Windows.Storage;
+using Windows.System.Power.Diagnostics;
 using Windows.UI;
 using Windows.UI.Input;
 using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Brushes;
+using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.Geometry;
+using Microsoft.Graphics.Canvas.UI;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 
 namespace WIN2DSandBox.DrawTools
 {
-    public class BrushRenderer
-    {
-        List<Stroke> _strokes = new List<Stroke>();
 
-        public List<Stroke> Strokes
+    public class BitmapRenderer
+    {
+        private CanvasBitmap _currentBrush;
+        private CanvasRenderTarget _layer;
+        private CanvasRenderTarget _backBuffer;
+        private CanvasRenderTarget _frontBuffer;
+
+        public async void CreateResourcesAsync(ICanvasResourceCreator creator)
         {
-            get { return _strokes; }
-            set { _strokes = value; }
+            _currentBrush = await CanvasBitmap.LoadAsync(creator, new Uri("ms-appx:///Resources/Brushes/brush_png_by_editionsmily-d4n41g9.png"));
+            //_control = (ICanvasResourceCreatorWithDpi) creator;
         }
+
+        private Stroke _currentStroke = new Stroke();
+        private float _width = 1200;
+        private float _height = 1024;
 
         public void OnPointerPressed()
         {
-            CurrentStroke = new Stroke();
-            Strokes.Add(CurrentStroke);
+            _currentStroke = new Stroke();
         }
-
-        public Stroke CurrentStroke { get; set; }
 
         public void OnPointerMoved(IList<PointerPoint> intermediatePoints)
         {
@@ -33,26 +48,38 @@ namespace WIN2DSandBox.DrawTools
             {
                 if (point.IsInContact)
                 {
-                    CurrentStroke?.Points.Add(new Vector2((float)point.Position.X, (float)point.Position.Y));
-                }
+                    using (CanvasDrawingSession ds = _frontBuffer.CreateDrawingSession())
+                    {
+                        ds.Clear(Colors.Transparent);
+                        ds.DrawImage(_currentBrush, new Rect(point.Position.X - 10, point.Position.Y - 10, 20, 20));
+                    }
 
+                    _backBuffer.CopyPixelsFromBitmap(_layer);
+
+                    using (var layerSession = _layer.CreateDrawingSession())
+                    {
+                        layerSession.Clear(Colors.Transparent);
+                        var effectsGraph = new BlendEffect
+                        {
+                            Mode = BlendEffectMode.Multiply,
+                            Background = _backBuffer,
+                            Foreground = _frontBuffer,
+                        };
+                        layerSession.DrawImage(effectsGraph);
+                    }
+                }
             }
         }
 
-        public void Render(CanvasDrawingSession ds)
+        public CanvasRenderTarget Render(CanvasControl control)
         {
-            foreach (var stroke in Strokes)
+            if (_layer == null)
             {
-                if (stroke.Points.Count>1)
-                {
-                    for(var i= 1; i <stroke.Points.Count; i++)
-                    {
-                        var point = stroke.Points[i];
-                        var prev = stroke.Points[i - 1];
-                        ds.FillEllipse(point, stroke.BrushRadius, stroke.BrushRadius, Colors.DarkRed);
-                    } 
-                }
+                _layer = new CanvasRenderTarget(control, _width, _height);
+                _backBuffer = new CanvasRenderTarget(control, _width, _height);
+                _frontBuffer = new CanvasRenderTarget(control, _width, _height);
             }
+            return _layer;
         }
     }
 
@@ -72,6 +99,14 @@ namespace WIN2DSandBox.DrawTools
                 _brushRadius = value;
             }
         }
-        private float _brushRadius= 10;
+
+        public Color Color
+        {
+            get { return _color; }
+            set { _color = value; }
+        }
+
+        private float _brushRadius = 10;
+        private Color _color = new Color() { A = 128, R = 0, G = 255, B = 0 };
     }
 }

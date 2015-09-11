@@ -8,13 +8,10 @@
     xmlns:xaml="using:Microsoft.Graphics.Canvas.UI.Xaml"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400"
-    Loaded="DrawingBoard_OnLoaded">
+    d:DesignWidth="400">
+
 
     <Grid>
-        <xaml:CanvasControl Draw="OnCanvasDraw" x:Name="DrawingControl"/>
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Height="40" Margin="18,10,0,0" VerticalAlignment="Top" Width="110" Click="button_Click"/>
-
-
+        <xaml:CanvasControl Draw="OnCanvasDraw" x:Name="DrawingControl" CreateResources="DrawingControl_OnCreateResources"/>
     </Grid>
 </UserControl>

@@ -16,10 +16,6 @@ namespace WIN2DSandBox
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
             InitializeComponent();
         }
-
-        private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
-        {
-            args.DrawingSession.DrawEllipse(155, 115, 80, 30, Colors.Red, 3);
-        }
+  
     }
 }
