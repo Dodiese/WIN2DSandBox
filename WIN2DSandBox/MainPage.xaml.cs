@@ -13,7 +13,7 @@ namespace WIN2DSandBox
     {
         public MainPage()
         {
-            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
             InitializeComponent();
         }
   

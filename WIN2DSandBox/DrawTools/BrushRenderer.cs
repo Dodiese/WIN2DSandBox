@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Numerics;
+using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using Windows.ApplicationModel.Background;
 using Windows.Foundation;
@@ -26,6 +28,14 @@ namespace WIN2DSandBox.DrawTools
         private CanvasRenderTarget _layer;
         private CanvasRenderTarget _backBuffer;
         private CanvasRenderTarget _frontBuffer;
+        private float _width = 1200;
+        private float _height = 1024;
+
+        private Vector2 _prevPoint;
+        private Vector2 _currPoint;
+        private float _flow = 1;
+        private uint _brushSize = 10;
+        private float _distanceToLastStamp;
 
         public async void CreateResourcesAsync(ICanvasResourceCreator creator)
         {
@@ -33,13 +43,11 @@ namespace WIN2DSandBox.DrawTools
             //_control = (ICanvasResourceCreatorWithDpi) creator;
         }
 
-        private Stroke _currentStroke = new Stroke();
-        private float _width = 1200;
-        private float _height = 1024;
 
-        public void OnPointerPressed()
+        public void OnPointerPressed(PointerPoint point)
         {
-            _currentStroke = new Stroke();
+            _prevPoint = new Vector2((float)point.Position.X, (float)point.Position.Y);
+            _distanceToLastStamp = 0;
         }
 
         public void OnPointerMoved(IList<PointerPoint> intermediatePoints)
@@ -48,28 +56,56 @@ namespace WIN2DSandBox.DrawTools
             {
                 if (point.IsInContact)
                 {
-                    using (CanvasDrawingSession ds = _frontBuffer.CreateDrawingSession())
-                    {
-                        ds.Clear(Colors.Transparent);
-                        ds.DrawImage(_currentBrush, new Rect(point.Position.X - 10, point.Position.Y - 10, 20, 20));
-                    }
-
-                    _backBuffer.CopyPixelsFromBitmap(_layer);
-
-                    using (var layerSession = _layer.CreateDrawingSession())
-                    {
-                        layerSession.Clear(Colors.Transparent);
-                        var effectsGraph = new BlendEffect
-                        {
-                            Mode = BlendEffectMode.Multiply,
-                            Background = _backBuffer,
-                            Foreground = _frontBuffer,
-                        };
-                        layerSession.DrawImage(effectsGraph);
-                    }
+                    _currPoint = new Vector2((float) point.Position.X, (float) point.Position.Y);
+                    DrawSubStroke(_prevPoint, _currPoint);
+                    _prevPoint = _currPoint;
                 }
             }
         }
+
+        private void DrawSubStroke(Vector2 beginPoint, Vector2 endPoint)
+        {
+            Queue<Vector2> subStrokePoints = InterpolateSubstroke(beginPoint, endPoint, _flow, _brushSize);
+
+            //using (var ds = _frontBuffer.CreateDrawingSession())
+            using (var ds = _layer.CreateDrawingSession())
+            {
+                foreach (var point in subStrokePoints)
+                {
+                    ds.DrawImage(_currentBrush, new Rect(point.X - _brushSize * 0.5 , point.Y - _brushSize * 0.5, _brushSize, _brushSize));
+                }
+            }
+
+            //_backBuffer.CopyPixelsFromBitmap(_layer);
+            //using (var layerSession = _layer.CreateDrawingSession())
+            //{
+            //    layerSession.Clear(Colors.Transparent);
+            //    var effectsGraph = new BlendEffect
+            //    {
+            //        Mode = BlendEffectMode.Multiply,
+            //        Background = _backBuffer,
+            //        Foreground = _frontBuffer,
+            //    };
+            //    layerSession.DrawImage(effectsGraph);
+            //}
+        }
+
+        private Queue<Vector2> InterpolateSubstroke(Vector2 beginPoint, Vector2 endPoint, float flow, uint brushSize)
+        {
+            Queue<Vector2> points = new Queue<Vector2>();
+            
+            //Vector2 increment = Vector2.Normalize(endPoint - beginPoint) * 0.1f;
+            var distance = (endPoint - beginPoint).Length();
+            var maxNb = distance/ (float)brushSize;
+            for (float i = 0; i < maxNb; i++)
+            {
+                float a = i/(float)maxNb;
+                var pt  = a * endPoint + (1.0f - a)* beginPoint;              
+                points.Enqueue(pt);
+            }
+            return points;
+        }
+
 
         public CanvasRenderTarget Render(CanvasControl control)
         {
@@ -81,32 +117,5 @@ namespace WIN2DSandBox.DrawTools
             }
             return _layer;
         }
-    }
-
-    public class Stroke
-    {
-        public List<Vector2> Points { get; } = new List<Vector2>();
-
-        public float BrushRadius
-        {
-            get
-            {
-                return _brushRadius;
-            }
-
-            set
-            {
-                _brushRadius = value;
-            }
-        }
-
-        public Color Color
-        {
-            get { return _color; }
-            set { _color = value; }
-        }
-
-        private float _brushRadius = 10;
-        private Color _color = new Color() { A = 128, R = 0, G = 255, B = 0 };
     }
 }

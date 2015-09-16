@@ -36,7 +36,7 @@ namespace WIN2DSandBox.DrawTools
         {
             lock (_renderer)
             {
-                _renderer.OnPointerPressed();
+                _renderer.OnPointerPressed(e.GetCurrentPoint(DrawingControl));
             }
             DrawingControl.Invalidate();
         }
